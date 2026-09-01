@@ -1,0 +1,51 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: mercado_juegos_db
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME:-mercado_juegos_db}
+      POSTGRES_USER: ${DB_USER:-mercado_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-mercado_pass_segura}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - red_mercado
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-mercado_user} -d ${DB_NAME:-mercado_juegos_db}"]
+      interval: 3s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    container_name: mercado_juegos_web
+    restart: always
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+      - media_volume:/app/media
+      - static_volume:/app/staticfiles
+    ports:
+      - "8080:8000"
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - red_mercado
+
+networks:
+  red_mercado:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  media_volume:
+  static_volume:

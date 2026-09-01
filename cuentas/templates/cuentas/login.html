@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Ingresar a tu Cuenta - Mercado Juegos{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-card {
+        background: #ffffff;
+        border-radius: var(--mj-radius);
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    .auth-input-group .input-group-text {
+        background-color: #f9fafb;
+        border-color: #d1d5db;
+        color: #6b7280;
+    }
+
+    .auth-input {
+        border-color: #d1d5db;
+        font-size: 0.95rem;
+        transition: var(--mj-transition);
+    }
+
+    .auth-input:focus {
+        border-color: var(--mj-blue);
+        box-shadow: 0 0 0 3px rgba(45, 50, 119, 0.15);
+    }
+
+    .toggle-password-btn {
+        background-color: #f9fafb;
+        border-color: #d1d5db;
+        color: #6b7280;
+        transition: var(--mj-transition);
+    }
+
+    .toggle-password-btn:hover {
+        background-color: #f3f4f6;
+        color: #111827;
+    }
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="container my-4 my-md-5" style="max-width: 460px;">
+
+    <!-- Tarjeta Principal de Login -->
+    <div class="card auth-card border-0">
+        <div class="card-body p-4 p-md-5">
+            
+            <!-- Encabezado -->
+            <div class="text-center mb-4">
+                <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex mb-3">
+                    <i class="fa-solid fa-gamepad fa-2x"></i>
+                </div>
+                <h3 class="fw-bold mb-1 text-dark">¡Hola de nuevo!</h3>
+                <p class="text-muted small mb-0">Ingresá tus credenciales para acceder a Mercado Juegos</p>
+            </div>
+
+            <!-- Errores Generales -->
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger alert-dismissible fade show small d-flex align-items-center gap-2 border-0 shadow-sm rounded-3 mb-3" role="alert">
+                    <i class="fa-solid fa-circle-exclamation fs-5 flex-shrink-0"></i>
+                    <div>
+                        {% for error in form.non_field_errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                </div>
+            {% endif %}
+
+            <form method="POST" action="">
+                {% csrf_token %}
+
+                {% if request.GET.next %}
+                    <input type="hidden" name="next" value="{{ request.GET.next }}">
+                {% endif %}
+
+                <!-- Campo Username -->
+                <div class="mb-3">
+                    <label for="id_username" class="form-label small fw-semibold text-secondary">Nombre de Usuario</label>
+                    <div class="input-group auth-input-group">
+                        <span class="input-group-text rounded-start-3"><i class="fa-solid fa-user"></i></span>
+                        <input type="text" 
+                               name="username" 
+                               id="id_username" 
+                               class="form-control auth-input rounded-end-3 {% if form.username.errors %}is-invalid{% endif %}" 
+                               value="{{ request.POST.username|default:'' }}" 
+                               placeholder="Ej. juanperez" 
+                               required 
+                               autofocus>
+                    </div>
+                    {% if form.username.errors %}
+                        <div class="invalid-feedback d-block small mt-1">
+                            {{ form.username.errors|first }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Campo Password con botón alternar visibilidad -->
+                <div class="mb-3">
+                    <label for="id_password" class="form-label small fw-semibold text-secondary">Contraseña</label>
+                    <div class="input-group auth-input-group">
+                        <span class="input-group-text rounded-start-3"><i class="fa-solid fa-lock"></i></span>
+                        <input type="password" 
+                               name="password" 
+                               id="id_password" 
+                               class="form-control auth-input {% if form.password.errors %}is-invalid{% endif %}" 
+                               placeholder="••••••••" 
+                               required>
+                        <button class="btn toggle-password-btn rounded-end-3" type="button" id="btnTogglePassword" aria-label="Mostrar contraseña">
+                            <i class="fa-solid fa-eye" id="toggleIcon"></i>
+                        </button>
+                    </div>
+                    {% if form.password.errors %}
+                        <div class="invalid-feedback d-block small mt-1">
+                            {{ form.password.errors|first }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Botón de Envío -->
+                <button type="submit" class="btn btn-mj-primary w-100 py-2 fs-6 mt-3 shadow-sm d-flex align-items-center justify-content-center gap-2">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>Iniciar Sesión</span>
+                </button>
+            </form>
+
+            <hr class="my-4 text-muted">
+            
+            <!-- Enlaces Secundarios -->
+            <div class="text-center">
+                <p class="mb-3 text-muted small">
+                    ¿No tenés una cuenta? 
+                    <a href="{% url 'cuentas:registro' %}" class="text-primary fw-bold text-decoration-none">
+                        Crear cuenta gratis
+                    </a>
+                </p>
+                <a href="{% url 'home:inicio' %}" class="small text-secondary text-decoration-none fw-medium">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Volver al catálogo principal
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleBtn = document.getElementById('btnTogglePassword');
+        const passwordInput = document.getElementById('id_password');
+        const toggleIcon = document.getElementById('toggleIcon');
+
+        if (toggleBtn && passwordInput && toggleIcon) {
+            toggleBtn.addEventListener('click', function() {
+                const isPassword = passwordInput.getAttribute('type') === 'password';
+                passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+                toggleIcon.classList.toggle('fa-eye', !isPassword);
+                toggleIcon.classList.toggle('fa-eye-slash', isPassword);
+            });
+        }
+    });
+</script>
+{% endblock %}

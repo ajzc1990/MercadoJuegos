@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es" class="h-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="theme-color" content="#fff159">
+    <title>{% block titulo %}Mercado Juegos - Tu plataforma de videojuegos y claves digitales{% endblock %}</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --mj-yellow: #fff159;
+            --mj-yellow-dark: #ebd93b;
+            --mj-blue: #2d3277;
+            --mj-blue-hover: #1e2252;
+            --mj-bg: #ededed;
+            --mj-card-bg: #ffffff;
+            --mj-text: #333333;
+            --mj-text-muted: #666666;
+            --mj-green: #00a650;
+            --mj-radius: 12px;
+            --mj-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        body {
+            background-color: var(--mj-bg);
+            color: var(--mj-text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Navbar principal */
+        .bg-mj-navbar {
+            background-color: var(--mj-yellow) !important;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .navbar-brand-custom {
+            font-weight: 800;
+            font-size: 1.45rem;
+            letter-spacing: -0.5px;
+            color: #222 !important;
+            transition: var(--mj-transition);
+        }
+
+        .navbar-brand-custom:hover {
+            transform: scale(1.02);
+        }
+
+        .brand-accent {
+            color: var(--mj-blue);
+        }
+
+        /* Buscador integrado */
+        .search-box-group {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+            border-radius: 6px;
+            overflow: hidden;
+            background: #ffffff;
+            transition: var(--mj-transition);
+        }
+
+        .search-box-group:focus-within {
+            box-shadow: 0 0 0 2px var(--mj-blue), 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .search-input {
+            border: none !important;
+            font-size: 0.95rem;
+            background-color: transparent;
+        }
+
+        .search-input:focus {
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        .search-btn {
+            border: none;
+            background-color: transparent;
+            color: #666;
+            transition: var(--mj-transition);
+            border-left: 1px solid #f0f0f0;
+        }
+
+        .search-btn:hover {
+            background-color: #f8f9fa;
+            color: var(--mj-blue);
+        }
+
+        /* Botones personalizados */
+        .btn-mj-primary {
+            background-color: var(--mj-blue);
+            color: #ffffff !important;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: var(--mj-transition);
+        }
+
+        .btn-mj-primary:hover {
+            background-color: var(--mj-blue-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(45, 50, 119, 0.25);
+        }
+
+        .btn-mj-outline {
+            border: 1px solid rgba(0, 0, 0, 0.25);
+            background: rgba(255, 255, 255, 0.4);
+            color: #222;
+            font-weight: 600;
+            border-radius: 6px;
+            transition: var(--mj-transition);
+        }
+
+        .btn-mj-outline:hover {
+            background: rgba(255, 255, 255, 0.85);
+            border-color: #000;
+            color: #000;
+        }
+
+        /* Enlaces de barra secundaria */
+        .subnav-link {
+            color: rgba(30, 30, 30, 0.85);
+            font-size: 0.88rem;
+            font-weight: 500;
+            text-decoration: none;
+            padding: 4px 6px;
+            border-radius: 4px;
+            transition: var(--mj-transition);
+            white-space: nowrap;
+        }
+
+        .subnav-link:hover {
+            color: #000;
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .subnav-link.active {
+            color: var(--mj-blue);
+            font-weight: 700;
+        }
+
+        /* Dropdown con elevación */
+        .dropdown-menu-custom {
+            border-radius: var(--mj-radius);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+            border: 1px solid rgba(0,0,0,0.06);
+            padding: 8px;
+            animation: fadeInMenu 0.15s ease-out forwards;
+        }
+
+        @keyframes fadeInMenu {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dropdown-menu-custom .dropdown-item {
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--mj-transition);
+        }
+
+        .dropdown-menu-custom .dropdown-item:hover {
+            background-color: #f3f4f6;
+            transform: translateX(3px);
+        }
+
+        /* Carrito con badge dinámico */
+        .cart-icon-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            transition: var(--mj-transition);
+            color: #222;
+        }
+
+        .cart-icon-wrapper:hover {
+            background-color: rgba(0,0,0,0.06);
+            color: var(--mj-blue);
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.25em 0.5em;
+            background-color: #e11d48 !important;
+            border: 2px solid var(--mj-yellow);
+        }
+
+        /* Alertas */
+        .alert-custom {
+            border-radius: var(--mj-radius);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        /* Footer */
+        footer {
+            background-color: #ffffff;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .footer-link {
+            color: var(--mj-text-muted);
+            text-decoration: none;
+            transition: var(--mj-transition);
+        }
+
+        .footer-link:hover {
+            color: var(--mj-blue);
+            text-decoration: underline;
+        }
+
+        /* Barra de scroll suave horizontal en móviles */
+        .subnav-container {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .subnav-container::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="d-flex flex-column h-100">
+
+    <!-- Header / Navbar Principal -->
+    <header class="bg-mj-navbar sticky-top shadow-sm">
+        <div class="container py-2">
+            <div class="row align-items-center g-2 g-md-3">
+                
+                <!-- Logo -->
+                <div class="col-6 col-md-3">
+                    <a class="navbar-brand-custom d-inline-flex align-items-center gap-2 text-decoration-none" href="{% url 'home:inicio' %}">
+                        <i class="fa-solid fa-gamepad brand-accent fs-3"></i>
+                        <span>Mercado<span class="brand-accent">Juegos</span></span>
+                    </a>
+                </div>
+
+                <!-- Buscador Central -->
+                <div class="col-12 col-md-5 order-3 order-md-2">
+                    <form action="{% url 'home:inicio' %}" method="get" role="search">
+                        <div class="input-group search-box-group">
+                            <input class="form-control search-input py-2 px-3" 
+                                   type="search" 
+                                   name="q" 
+                                   placeholder="Buscar videojuegos, licencias, sagas..." 
+                                   value="{{ request.GET.q|default:'' }}" 
+                                   aria-label="Buscar productos">
+                            <button class="btn search-btn px-3" type="submit" aria-label="Buscar">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Menú Usuario y Carrito -->
+                <div class="col-6 col-md-4 order-2 order-md-3 text-end">
+                    <div class="d-flex align-items-center justify-content-end gap-2 gap-sm-3">
+                        
+                        <!-- Carrito -->
+                        <a href="{% url 'ventas:carrito' %}" class="cart-icon-wrapper text-decoration-none" title="Ver Carrito de Compras" aria-label="Carrito de compras">
+                            <i class="fa-solid fa-cart-shopping fs-5"></i>
+                            {% if request.session.carrito %}
+                                <span class="badge rounded-pill cart-badge">
+                                    {{ request.session.carrito|length }}
+                                </span>
+                            {% endif %}
+                        </a>
+
+                        {% if user.is_authenticated %}
+                            <!-- Menú de Usuario Autenticado -->
+                            <div class="dropdown">
+                                <button class="btn btn-mj-outline btn-sm dropdown-toggle d-flex align-items-center gap-2 py-1 px-2 px-sm-3" 
+                                        type="button" 
+                                        id="userDropdown" 
+                                        data-bs-toggle="dropdown" 
+                                        aria-expanded="false">
+                                    <i class="fa-solid fa-circle-user fs-5 text-primary"></i>
+                                    <span class="d-none d-sm-inline">{{ user.username }}</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-custom mt-2" aria-labelledby="userDropdown">
+                                    <li class="px-3 py-2 border-bottom mb-1 bg-light rounded-2">
+                                        <small class="text-muted d-block">Conectado como</small>
+                                        <strong class="d-block text-truncate" style="max-width: 190px;">{{ user.email|default:user.username }}</strong>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'cuentas:perfil' %}">
+                                            <i class="fa-solid fa-id-badge text-primary me-2"></i>Mi Perfil
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'ventas:mis_compras' %}">
+                                            <i class="fa-solid fa-box-open text-primary me-2"></i>Mis Compras
+                                        </a>
+                                    </li>
+                                    {% if user.is_superuser or user.is_staff %}
+                                    <li>
+                                        <a class="dropdown-item text-success fw-semibold" href="{% url 'publicaciones:crear' %}">
+                                            <i class="fa-solid fa-plus-circle text-success me-2"></i>Publicar Juego
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item text-secondary" href="/admin/" target="_blank">
+                                            <i class="fa-solid fa-gear me-2"></i>Panel Django Admin
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    <li><hr class="dropdown-divider my-1"></li>
+                                    <li>
+                                        <form action="{% url 'cuentas:logout' %}" method="post" class="m-0 p-0">
+                                            {% csrf_token %}
+                                            <button type="submit" class="dropdown-item text-danger py-2 border-0 bg-transparent w-100 text-start">
+                                                <i class="fa-solid fa-right-from-bracket me-2"></i>Cerrar sesión
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        {% else %}
+                            <!-- Botones Invitados -->
+                            <a href="{% url 'cuentas:login' %}" class="btn btn-mj-outline btn-sm px-2 px-sm-3">
+                                Ingresar
+                            </a>
+                            <a href="{% url 'cuentas:registro' %}" class="btn btn-mj-primary btn-sm px-2 px-sm-3 shadow-sm">
+                                Registrarse
+                            </a>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Submenú de Navegación Rápida -->
+            <div class="d-flex align-items-center gap-3 mt-2 pt-2 border-top border-dark-subtle overflow-x-auto subnav-container">
+                <a href="{% url 'home:inicio' %}" class="subnav-link">
+                    <i class="fa-solid fa-house me-1 text-secondary"></i>Inicio
+                </a>
+                
+                {% if user.is_authenticated %}
+                    <a href="{% url 'ventas:mis_compras' %}" class="subnav-link">
+                        <i class="fa-solid fa-receipt me-1 text-secondary"></i>Mis Compras y Claves
+                    </a>
+                    <a href="{% url 'cuentas:perfil' %}" class="subnav-link">
+                        <i class="fa-solid fa-user-gear me-1 text-secondary"></i>Configuración de Cuenta
+                    </a>
+                {% else %}
+                    <a href="{% url 'cuentas:despedida' %}" class="subnav-link">
+                        <i class="fa-solid fa-shield-halved me-1 text-secondary"></i>Garantía de Entrega Inmediata
+                    </a>
+                {% endif %}
+
+                <a href="{% url 'home:contacto' %}" class="subnav-link ms-auto">
+                    <i class="fa-solid fa-headset me-1 text-secondary"></i>Ayuda / Soporte
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sistema de Alertas Django Messages -->
+    <div class="container mt-3">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show border-0 alert-custom d-flex align-items-center gap-2" role="alert">
+                    {% if message.tags == 'success' %}
+                        <i class="fa-solid fa-circle-check fs-5 text-success"></i>
+                    {% elif message.tags == 'error' or message.tags == 'danger' %}
+                        <i class="fa-solid fa-circle-exclamation fs-5 text-danger"></i>
+                    {% elif message.tags == 'warning' %}
+                        <i class="fa-solid fa-triangle-exclamation fs-5 text-warning"></i>
+                    {% else %}
+                        <i class="fa-solid fa-circle-info fs-5 text-primary"></i>
+                    {% endif %}
+                    <div class="flex-grow-1">{{ message }}</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- Contenido Central de las Vistas -->
+    <main class="flex-shrink-0 mb-5">
+        {% block contenido %}{% endblock %}
+    </main>
+
+    <!-- Footer Global -->
+    <footer class="mt-auto py-4">
+        <div class="container">
+            <div class="row gy-3 align-items-center">
+                <div class="col-md-5 text-center text-md-start">
+                    <span class="fw-bold fs-6 text-dark d-block mb-1">Mercado<span class="brand-accent">Juegos</span></span>
+                    <p class="text-muted small mb-0">&copy; 2026 Mercado Juegos. Distribución de licencias digitales de activación.</p>
+                </div>
+                <div class="col-md-7 text-center text-md-end">
+                    <div class="d-flex flex-wrap justify-content-center justify-content-md-end gap-3 small">
+                        <a href="{% url 'cuentas:despedida' %}" class="footer-link">Sobre Nosotros</a>
+                        <a href="{% url 'home:contacto' %}" class="footer-link">Centro de Ayuda</a>
+                        <a href="{% url 'ventas:carrito' %}" class="footer-link">Carrito</a>
+                        <span class="text-muted">|</span>
+                        <span class="text-muted"><i class="fa-solid fa-lock text-success me-1"></i>Pagos Seguros vía Mercado Pago</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5.3 JavaScript Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

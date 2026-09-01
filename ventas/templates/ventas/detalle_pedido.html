@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo %}Detalle de Pedido #{{ pedido.id }} - Mercado Juegos{% endblock %}
+
+{% block extra_css %}
+<style>
+    .order-card {
+        background: #ffffff;
+        border-radius: var(--mj-radius);
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+    }
+
+    .order-item-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        transition: var(--mj-transition);
+    }
+
+    .order-item-card:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+
+    .key-input-display {
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+        font-weight: 700;
+        letter-spacing: 1px;
+        background-color: #0f172a !important;
+        color: #22c55e !important;
+        border: 1px solid #0f172a;
+        font-size: 0.9rem;
+    }
+
+    .btn-copy-key {
+        font-weight: 600;
+        min-width: 90px;
+        transition: var(--mj-transition);
+    }
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="container my-3 my-md-4">
+
+    <!-- Navegación superior y Encabezado de la Orden -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+        <div>
+            <a href="{% url 'ventas:mis_compras' %}" class="text-decoration-none text-secondary small fw-semibold d-inline-flex align-items-center gap-1">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Volver a Mis Compras</span>
+            </a>
+            <h3 class="fw-bold text-dark mt-1 mb-0">Orden de Compra #{{ pedido.id }}</h3>
+        </div>
+        <div>
+            {% if pedido.estado == 'pagado' %}
+                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 text-uppercase fw-bold fs-6">
+                    <i class="fa-solid fa-circle-check me-1"></i>Pago Acreditado
+                </span>
+            {% else %}
+                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-3 py-2 text-uppercase fw-bold fs-6">
+                    <i class="fa-solid fa-clock me-1"></i>{{ pedido.get_estado_display }}
+                </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row g-4">
+        
+        <!-- 1. Listado de Videojuegos y Claves Digitales -->
+        <div class="col-12 col-lg-8">
+            <div class="order-card overflow-hidden mb-4">
+                
+                <div class="bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold text-dark fs-6 d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-key text-primary"></i>
+                        <span>Licencias y Claves Digitales Asignadas</span>
+                    </h5>
+                    <span class="badge bg-light text-muted border">{{ pedido.detalles.count }} ítem{{ pedido.detalles.count|pluralize }}</span>
+                </div>
+
+                <div class="p-3 p-md-4">
+                    {% for detalle in pedido.detalles.all %}
+                    <div class="order-item-card p-3 mb-3">
+                        <div class="row align-items-center g-3">
+                            
+                            <!-- Portada del Juego -->
+                            <div class="col-3 col-sm-2 text-center">
+                                {% if detalle.producto.imagen %}
+                                    <img src="{{ detalle.producto.imagen.url }}" class="rounded-3 w-100 object-fit-cover shadow-sm border" style="height: 75px;" alt="{{ detalle.producto.titulo }}">
+                                {% else %}
+                                    <div class="bg-dark rounded-3 text-secondary d-flex align-items-center justify-content-center" style="height: 75px;">
+                                        <i class="fa-solid fa-gamepad fa-2x"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Información del Producto -->
+                            <div class="col-9 col-sm-4">
+                                <h6 class="fw-bold mb-1 text-dark text-truncate" title="{{ detalle.producto.titulo }}">
+                                    <a href="{% url 'publicaciones:detalle' detalle.producto.id %}" class="text-dark text-decoration-none">
+                                        {{ detalle.producto.titulo }}
+                                    </a>
+                                </h6>
+                                <span class="badge bg-light text-secondary border small mb-1">
+                                    {{ detalle.producto.categoria.nombre }}
+                                </span>
+                                <div class="text-muted small">
+                                    {{ detalle.cantidad }}x ${{ detalle.precio_unitario }}
+                                </div>
+                            </div>
+
+                            <!-- Claves de Activación -->
+                            <div class="col-12 col-sm-6">
+                                <label class="form-label text-secondary small fw-bold mb-1 d-flex align-items-center gap-1">
+                                    <i class="fa-solid fa-bolt text-warning"></i>
+                                    <span>Código de Activación Digital:</span>
+                                </label>
+
+                                {% for entrega in detalle.claves_entregadas.all %}
+                                    <div class="input-group input-group-sm mb-2 shadow-sm">
+                                        <input type="text" 
+                                               class="form-control key-input-display rounded-start-3" 
+                                               value="{{ entrega.clave_producto.clave }}" 
+                                               readonly 
+                                               id="clave-{{ entrega.id }}">
+                                        <button class="btn btn-mj-primary btn-copy-key rounded-end-3" 
+                                                type="button" 
+                                                onclick="copyKeyToClipboard('{{ entrega.clave_producto.clave }}', this)">
+                                            <i class="fa-solid fa-copy me-1"></i>Copiar
+                                        </button>
+                                    </div>
+                                {% empty %}
+                                    {% if pedido.estado == 'pagado' %}
+                                        <div class="alert alert-info py-2 px-3 small mb-0 rounded-3 border-0 shadow-sm d-flex align-items-center gap-2">
+                                            <i class="fa-solid fa-envelope text-primary"></i>
+                                            <span>Licencia enviada a tu casilla de correo electrónico.</span>
+                                        </div>
+                                    {% else %}
+                                        <div class="alert alert-warning py-2 px-3 small mb-0 rounded-3 border-0 shadow-sm d-flex align-items-center gap-2">
+                                            <i class="fa-solid fa-clock text-warning"></i>
+                                            <span>La clave se asignará de inmediato al confirmar el pago.</span>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 2. Resumen de la Transacción -->
+        <div class="col-12 col-lg-4">
+            <div class="order-card overflow-hidden mb-3">
+                
+                <div class="bg-white border-bottom py-3 px-4">
+                    <h5 class="mb-0 fw-bold text-dark fs-6 d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-receipt text-primary"></i>
+                        <span>Detalles del Pago</span>
+                    </h5>
+                </div>
+                
+                <div class="p-4">
+                    <div class="d-flex justify-content-between mb-2 small">
+                        <span class="text-muted">Fecha y hora:</span>
+                        <span class="fw-semibold text-dark">{{ pedido.creado_el|date:"d/m/Y H:i" }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 small">
+                        <span class="text-muted">Comprador:</span>
+                        <span class="fw-semibold text-dark">{{ pedido.comprador.username }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3 small">
+                        <span class="text-muted">Modalidad de entrega:</span>
+                        <span class="badge bg-success bg-opacity-10 text-success fw-bold">Digital Instantánea</span>
+                    </div>
+                    
+                    <hr class="my-3 text-muted opacity-25">
+
+                    <div class="d-flex justify-content-between align-items-baseline">
+                        <span class="fs-6 fw-bold text-dark">Total abonado:</span>
+                        <span class="fs-4 fw-bold text-success">${{ pedido.total }}</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Garantía y Ayuda -->
+            <div class="p-4 bg-white rounded-3 border shadow-sm text-center">
+                <i class="fa-solid fa-shield-check text-success fs-3 mb-2"></i>
+                <h6 class="fw-bold mb-1 text-dark">Garantía de Activación de por Vida</h6>
+                <p class="text-muted small mb-3">Todas nuestras licencias son verificadas directamente en las plataformas oficiales.</p>
+                <a href="{% url 'home:contacto' %}" class="btn btn-sm btn-mj-outline w-100 fw-semibold">
+                    <i class="fa-solid fa-headset me-1"></i>¿Problemas con el canje?
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function copyKeyToClipboard(text, btnElement) {
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).then(() => showSuccess(btnElement));
+        } else {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showSuccess(btnElement);
+            } catch (err) {
+                console.error('Error al copiar', err);
+            }
+            document.body.removeChild(textArea);
+        }
+    }
+
+    function showSuccess(btn) {
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-check me-1"></i>¡Listo!';
+        btn.classList.remove('btn-mj-primary');
+        btn.classList.add('btn-success');
+        setTimeout(() => {
+            btn.innerHTML = originalHtml;
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-mj-primary');
+        }, 2000);
+    }
+</script>
+{% endblock %}

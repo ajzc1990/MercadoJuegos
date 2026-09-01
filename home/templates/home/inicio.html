@@ -1,0 +1,397 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo %}Inicio - Mercado Juegos | Videojuegos y Claves Digitales{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos del Hero Carrusel */
+    .hero-carousel-card {
+        border-radius: var(--mj-radius);
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .hero-banner-img {
+        height: 360px;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+
+    @media (max-width: 768px) {
+        .hero-banner-img {
+            height: 200px;
+        }
+    }
+
+    /* Barra de Confianza */
+    .trust-badge-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: var(--mj-radius);
+        padding: 16px;
+        transition: var(--mj-transition);
+    }
+
+    .trust-badge-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.06);
+        border-color: #d1d5db;
+    }
+
+    /* Chips de Categorías */
+    .category-chip {
+        font-size: 0.85rem;
+        font-weight: 600;
+        padding: 6px 16px;
+        border-radius: 9999px;
+        text-decoration: none;
+        transition: var(--mj-transition);
+        white-space: nowrap;
+        border: 1px solid #d1d5db;
+        background-color: #ffffff;
+        color: #374151;
+    }
+
+    .category-chip:hover {
+        background-color: #f3f4f6;
+        color: #111827;
+        border-color: #9ca3af;
+    }
+
+    .category-chip.active {
+        background-color: var(--mj-blue);
+        color: #ffffff;
+        border-color: var(--mj-blue);
+        box-shadow: 0 2px 6px rgba(45, 50, 119, 0.3);
+    }
+
+    /* Product Cards */
+    .product-card {
+        border-radius: var(--mj-radius);
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        transition: var(--mj-transition);
+    }
+
+    .product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+        border-color: #cbd5e1;
+    }
+
+    .product-img-wrapper {
+        position: relative;
+        height: 190px;
+        background-color: #0f172a;
+        overflow: hidden;
+    }
+
+    .product-img-wrapper img {
+        transition: transform 0.3s ease;
+    }
+
+    .product-card:hover .product-img-wrapper img {
+        transform: scale(1.05);
+    }
+
+    .price-tag {
+        font-size: 1.45rem;
+        font-weight: 800;
+        color: var(--mj-green);
+        letter-spacing: -0.5px;
+    }
+
+    .step-icon-box {
+        width: 44px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(45, 50, 119, 0.1);
+        color: var(--mj-blue);
+        font-weight: 800;
+        font-size: 1.1rem;
+        border-radius: 50%;
+    }
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="container my-3 my-md-4">
+
+    <!-- 1. Carrusel de Banners / Hero Principal -->
+    {% if banners %}
+    <div id="carruselBanners" class="carousel slide mb-4 hero-carousel-card" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            {% for banner in banners %}
+                {% if banner.imagen %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}" data-bs-interval="5000">
+                    <a href="{{ banner.url_destino|default:'#' }}" class="d-block text-decoration-none">
+                        <img src="{{ banner.imagen.url }}" class="d-block w-100 hero-banner-img" alt="{{ banner.titulo|default:'Banner' }}">
+                    </a>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% if banners|length > 1 %}
+        <button class="carousel-control-prev" type="button" data-bs-target="#carruselBanners" data-bs-slide="prev" aria-label="Anterior">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carruselBanners" data-bs-slide="next" aria-label="Siguiente">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        </button>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- 2. Barra de Confianza / Trust Badges -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-4">
+            <div class="trust-badge-card h-100 d-flex align-items-center gap-3">
+                <div class="p-3 rounded-circle bg-warning bg-opacity-10 text-warning fs-4">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-0 text-dark">Entrega Inmediata</h6>
+                    <small class="text-muted">Claves en pantalla y enviadas por correo al instante</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="trust-badge-card h-100 d-flex align-items-center gap-3">
+                <div class="p-3 rounded-circle bg-primary bg-opacity-10 text-primary fs-4">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-0 text-dark">Compra Protegida</h6>
+                    <small class="text-muted">Procesamiento cifrado a través de Mercado Pago</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="trust-badge-card h-100 d-flex align-items-center gap-3">
+                <div class="p-3 rounded-circle bg-success bg-opacity-10 text-success fs-4">
+                    <i class="fa-solid fa-key"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-0 text-dark">Licencias Originales</h6>
+                    <small class="text-muted">Activación directa en Steam, Epic, Xbox y EA</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Filtro de Categorías / Chips Horizontales -->
+    <div class="d-flex align-items-center overflow-x-auto pb-2 mb-4 subnav-container gap-2">
+        <span class="fw-bold me-2 text-secondary small text-nowrap">
+            <i class="fa-solid fa-filter me-1"></i>Filtrar:
+        </span>
+        <a href="{% url 'home:inicio' %}{% if busqueda %}?q={{ busqueda }}{% endif %}" 
+           class="category-chip {% if not categoria_seleccionada %}active{% endif %}">
+            Todas
+        </a>
+        {% for cat in categorias %}
+        <a href="{% url 'home:inicio' %}?categoria={{ cat.slug }}{% if busqueda %}&q={{ busqueda }}{% endif %}" 
+           class="category-chip {% if categoria_seleccionada == cat.slug %}active{% endif %}">
+            {{ cat.nombre }}
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- 4. Encabezado de la Grilla de Productos -->
+    <div class="d-flex justify-content-between align-items-end mb-3">
+        <div>
+            <h4 class="mb-0 fw-bold text-dark">
+                {% if busqueda %}
+                    Resultados para <span class="text-primary">"{{ busqueda }}"</span>
+                {% elif categoria_seleccionada %}
+                    Categoría: <span class="text-primary text-capitalize">{{ categoria_seleccionada }}</span>
+                {% else %}
+                    Catálogo de Videojuegos
+                {% endif %}
+            </h4>
+        </div>
+        <span class="text-muted small fw-medium">
+            {% if productos.paginator %}
+                Mostrando {{ productos.start_index }}-{{ productos.end_index }} de {{ productos.paginator.count }}
+            {% else %}
+                {{ productos|length }} título{{ productos|length|pluralize }}
+            {% endif %}
+        </span>
+    </div>
+
+    <!-- 5. Grilla de Productos -->
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3 g-md-4 mb-5">
+        {% for producto in productos %}
+        <div class="col">
+            <div class="card h-100 product-card overflow-hidden d-flex flex-column shadow-sm">
+                
+                <!-- Portada / Imagen -->
+                <div class="product-img-wrapper">
+                    <a href="{% url 'publicaciones:detalle' producto.id %}" class="d-block w-100 h-100" aria-label="{{ producto.titulo }}">
+                        {% if producto.imagen %}
+                            <img src="{{ producto.imagen.url }}" class="w-100 h-100" alt="{{ producto.titulo }}" style="object-fit: cover;">
+                        {% else %}
+                            <div class="d-flex align-items-center justify-content-center h-100 text-secondary">
+                                <i class="fa-solid fa-gamepad fa-3x"></i>
+                            </div>
+                        {% endif %}
+                    </a>
+                    
+                    <!-- Badge de Stock Dinámico -->
+                    {% if producto.stock > 3 %}
+                        <span class="position-absolute top-0 end-0 m-2 badge bg-dark bg-opacity-75 text-light fw-medium">
+                            Stock: {{ producto.stock }}
+                        </span>
+                    {% elif producto.stock > 0 %}
+                        <span class="position-absolute top-0 end-0 m-2 badge bg-warning text-dark fw-bold">
+                            ¡Últimas {{ producto.stock }}!
+                        </span>
+                    {% else %}
+                        <span class="position-absolute top-0 end-0 m-2 badge bg-danger text-light fw-bold">
+                            Agotado
+                        </span>
+                    {% endif %}
+                </div>
+
+                <!-- Cuerpo de la Tarjeta -->
+                <div class="card-body d-flex flex-column justify-content-between p-3">
+                    <div>
+                        <!-- Badges Informativos -->
+                        <div class="mb-2 d-flex gap-1 flex-wrap">
+                            <span class="badge bg-light text-secondary border small">{{ producto.categoria.nombre }}</span>
+                            <span class="badge bg-light text-dark border small">{{ producto.get_condicion_display }}</span>
+                        </div>
+
+                        <!-- Título del Juego -->
+                        <h6 class="card-title fw-bold mb-1" title="{{ producto.titulo }}">
+                            <a href="{% url 'publicaciones:detalle' producto.id %}" class="text-dark text-decoration-none text-truncate d-block">
+                                {{ producto.titulo }}
+                            </a>
+                        </h6>
+
+                        <!-- Vendedor Verificado -->
+                        <small class="text-muted d-block mb-3">
+                            <i class="fa-solid fa-circle-check text-primary me-1"></i>{{ producto.vendedor.username }}
+                        </small>
+                    </div>
+
+                    <!-- Precio y Acción de Compra -->
+                    <div class="pt-2 border-top">
+                        <div class="d-flex align-items-baseline justify-content-between mb-2">
+                            <span class="text-muted small">Precio:</span>
+                            <span class="price-tag">${{ producto.precio }}</span>
+                        </div>
+
+                        {% if producto.stock > 0 %}
+                            <form action="{% url 'ventas:agregar' producto.id %}" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-mj-primary w-100 py-2 d-flex align-items-center justify-content-center gap-2">
+                                    <i class="fa-solid fa-cart-plus"></i>
+                                    <span>Agregar al carrito</span>
+                                </button>
+                            </form>
+                        {% else %}
+                            <button type="button" class="btn btn-secondary w-100 py-2 disabled" disabled>
+                                <i class="fa-solid fa-ban me-1"></i>Sin Stock
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 py-5">
+            <div class="p-5 text-center bg-white rounded-4 border shadow-sm">
+                <div class="p-3 bg-light rounded-circle d-inline-flex mb-3 text-muted">
+                    <i class="fa-solid fa-ghost fa-3x"></i>
+                </div>
+                <h5 class="fw-bold text-dark">No se encontraron videojuegos</h5>
+                <p class="text-muted mb-4 mx-auto" style="max-width: 400px;">
+                    No encontramos resultados con los criterios seleccionados. Intentá con otro término o restablecé los filtros.
+                </p>
+                <a href="{% url 'home:inicio' %}" class="btn btn-mj-primary px-4 py-2">
+                    <i class="fa-solid fa-rotate-left me-2"></i>Ver catálogo completo
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 6. Paginador Accesible -->
+    {% if productos.has_other_pages %}
+    <nav aria-label="Navegación de páginas" class="mb-5">
+        <ul class="pagination justify-content-center flex-wrap gap-1">
+            {% if productos.has_previous %}
+                <li class="page-item">
+                    <a class="page-link rounded-3 text-dark border" href="?page={{ productos.previous_page_number }}{% if busqueda %}&q={{ busqueda }}{% endif %}{% if categoria_seleccionada %}&categoria={{ categoria_seleccionada }}{% endif %}" aria-label="Anterior">
+                        &laquo; Anterior
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link rounded-3 text-muted border">&laquo; Anterior</span>
+                </li>
+            {% endif %}
+
+            {% for num in productos.paginator.page_range %}
+                {% if productos.number == num %}
+                    <li class="page-item active" aria-current="page">
+                        <span class="page-link rounded-3 fw-bold" style="background-color: var(--mj-blue); border-color: var(--mj-blue);">{{ num }}</span>
+                    </li>
+                {% elif num > productos.number|add:'-3' and num < productos.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link rounded-3 text-dark border" href="?page={{ num }}{% if busqueda %}&q={{ busqueda }}{% endif %}{% if categoria_seleccionada %}&categoria={{ categoria_seleccionada }}{% endif %}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if productos.has_next %}
+                <li class="page-item">
+                    <a class="page-link rounded-3 text-dark border" href="?page={{ productos.next_page_number }}{% if busqueda %}&q={{ busqueda }}{% endif %}{% if categoria_seleccionada %}&categoria={{ categoria_seleccionada }}{% endif %}" aria-label="Siguiente">
+                        Siguiente &raquo;
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link rounded-3 text-muted border">Siguiente &raquo;</span>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    <!-- 7. Sección: ¿Cómo Funciona la Compra y Entrega Digital? -->
+    <div class="p-4 p-md-5 bg-white rounded-4 border shadow-sm text-center my-4">
+        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-semibold mb-2">Proceso 100% Digital</span>
+        <h3 class="fw-bold mb-4 text-dark">¿Cómo comprar en Mercado Juegos?</h3>
+        <div class="row g-4">
+            <div class="col-12 col-md-4">
+                <div class="p-4 rounded-3 border bg-light h-100 text-center">
+                    <div class="step-icon-box mb-3">1</div>
+                    <h6 class="fw-bold text-dark">Elegí tu Juego</h6>
+                    <p class="text-muted small mb-0">Explorá el catálogo y agregá los títulos que quieras a tu carrito.</p>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="p-4 rounded-3 border bg-light h-100 text-center">
+                    <div class="step-icon-box mb-3">2</div>
+                    <h6 class="fw-bold text-dark">Pagá Seguro</h6>
+                    <p class="text-muted small mb-0">Aboná con saldo, débito, crédito o transferencia mediante Mercado Pago.</p>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="p-4 rounded-3 border bg-light h-100 text-center">
+                    <div class="step-icon-box mb-3">3</div>
+                    <h6 class="fw-bold text-dark">Recibí tu Clave</h6>
+                    <p class="text-muted small mb-0">Obtené tu código de activación directo en pantalla y en tu casilla de correo.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

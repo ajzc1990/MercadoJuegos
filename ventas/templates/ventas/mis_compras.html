@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo %}Mis Compras y Claves Digitales - Mercado Juegos{% endblock %}
+
+{% block extra_css %}
+<style>
+    .order-card-container {
+        background: #ffffff;
+        border-radius: var(--mj-radius);
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+        transition: var(--mj-transition);
+    }
+
+    .order-card-container:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    .order-item-thumb {
+        width: 65px;
+        height: 65px;
+        object-fit: cover;
+        border-radius: 8px;
+        background-color: #0f172a;
+    }
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="container my-4 my-md-5" style="max-width: 920px;">
+
+    <!-- Encabezado de Sección -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <div>
+            <h3 class="fw-bold mb-0 text-dark d-flex align-items-center gap-2">
+                <i class="fa-solid fa-box-open text-primary"></i>
+                <span>Mis Compras</span>
+            </h3>
+            <small class="text-muted">Consultá tus pedidos anteriores y claves de activación asignadas</small>
+        </div>
+        <span class="badge bg-light text-muted border px-3 py-2 fw-medium">
+            {{ pedidos|length }} pedido{{ pedidos|length|pluralize }} registrado{{ pedidos|length|pluralize }}
+        </span>
+    </div>
+
+    {% for pedido in pedidos %}
+    <div class="order-card-container mb-4 overflow-hidden">
+        
+        <!-- Header de la Orden -->
+        <div class="bg-white border-bottom d-flex justify-content-between align-items-center py-3 px-4 flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge bg-primary px-2.5 py-1.5 fw-bold fs-6">#{{ pedido.id }}</span>
+                <div>
+                    <span class="fw-bold d-block text-dark">Comprado el {{ pedido.creado_el|date:"d/m/Y" }}</span>
+                    <small class="text-muted"><i class="fa-solid fa-clock me-1"></i>{{ pedido.creado_el|date:"H:i" }} hs</small>
+                </div>
+            </div>
+
+            <!-- Badge de Estado Dinámico -->
+            <div>
+                {% if pedido.estado == 'completado' or pedido.estado == 'pagado' %}
+                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 fw-semibold">
+                        <i class="fa-solid fa-circle-check me-1"></i>{{ pedido.get_estado_display|default:"Pago Acreditado" }}
+                    </span>
+                {% elif pedido.estado == 'pendiente' %}
+                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-3 py-2 fw-semibold">
+                        <i class="fa-solid fa-hourglass-half me-1"></i>{{ pedido.get_estado_display|default:"Pendiente de Pago" }}
+                    </span>
+                {% elif pedido.estado == 'cancelado' %}
+                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-3 py-2 fw-semibold">
+                        <i class="fa-solid fa-circle-xmark me-1"></i>{{ pedido.get_estado_display|default:"Cancelado" }}
+                    </span>
+                {% else %}
+                    <span class="badge bg-secondary px-3 py-2">{{ pedido.get_estado_display }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Cuerpo: Listado de Juegos -->
+        <div class="card-body p-4">
+            {% for detalle in pedido.detalles.all %}
+            <div class="d-flex align-items-center justify-content-between py-3 {% if not forloop.last %}border-bottom{% endif %} flex-wrap gap-3">
+                
+                <div class="d-flex align-items-center gap-3">
+                    {% if detalle.producto.imagen %}
+                        <img src="{{ detalle.producto.imagen.url }}" alt="{{ detalle.producto.titulo }}" class="order-item-thumb border">
+                    {% else %}
+                        <div class="order-item-thumb border d-flex align-items-center justify-content-center text-secondary">
+                            <i class="fa-solid fa-gamepad fa-2x"></i>
+                        </div>
+                    {% endif %}
+
+                    <div>
+                        <h6 class="mb-1 fw-bold">
+                            <a href="{% url 'publicaciones:detalle' detalle.producto.id %}" class="text-dark text-decoration-none">
+                                {{ detalle.producto.titulo }}
+                            </a>
+                        </h6>
+                        <span class="badge bg-light text-secondary border small mb-1">
+                            {{ detalle.producto.categoria.nombre }}
+                        </span>
+                        <small class="text-muted d-block">
+                            {{ detalle.cantidad }} unidad{{ detalle.cantidad|pluralize:"es" }} x ${{ detalle.precio_unitario }}
+                        </small>
+                    </div>
+                </div>
+
+                <div class="text-end ms-auto">
+                    <span class="fw-bold text-success fs-5 d-block mb-1">
+                        ${{ detalle.subtotal|default:detalle.get_subtotal }}
+                    </span>
+                    <a href="{% url 'publicaciones:detalle' detalle.producto.id %}" class="btn btn-sm btn-mj-outline px-3 py-1 small">
+                        Ver Juego
+                    </a>
+                </div>
+
+            </div>
+            {% endfor %}
+
+            <!-- Footer del Pedido con Botón de Claves -->
+            <div class="d-flex justify-content-between align-items-center pt-3 mt-3 border-top bg-light rounded-3 p-3 flex-wrap gap-3">
+                <div class="small text-muted">
+                    <i class="fa-solid fa-bolt me-1 text-warning"></i>
+                    <strong>Entrega:</strong> Inmediata en pantalla y por email
+                </div>
+
+                <div class="d-flex align-items-center gap-3 ms-auto">
+                    <div class="text-end">
+                        <small class="text-muted d-block" style="font-size: 0.75rem;">Total abonado</small>
+                        <span class="fw-bold fs-4 text-success">${{ pedido.total }}</span>
+                    </div>
+
+                    <!-- Botón para ver las claves del pedido -->
+                    {% if pedido.id %}
+                    <a href="{% url 'ventas:detalle_pedido' pedido.id %}" class="btn btn-mj-primary px-3 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2 small">
+                        <i class="fa-solid fa-key"></i>
+                        <span>Ver Claves</span>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+    {% empty %}
+    <!-- Estado sin compras -->
+    <div class="card order-card-container border-0 py-5 text-center">
+        <div class="card-body p-4 p-md-5">
+            <div class="p-3 bg-light rounded-circle d-inline-flex mb-3 text-muted">
+                <i class="fa-solid fa-box-open fa-3x opacity-50"></i>
+            </div>
+            <h4 class="fw-bold text-dark mb-2">Aún no realizaste ninguna compra</h4>
+            <p class="text-muted mb-4 mx-auto" style="max-width: 420px;">
+                ¡Explorá nuestras ofertas en videojuegos y claves de activación digital para realizar tu primer pedido!
+            </p>
+            <a href="{% url 'home:inicio' %}" class="btn btn-mj-primary px-4 py-2 fw-semibold shadow-sm">
+                <i class="fa-solid fa-gamepad me-2"></i>Ir al catálogo de juegos
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+{% endblock %}

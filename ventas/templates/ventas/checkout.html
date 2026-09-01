@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Confirmar Compra y Pago - Mercado Juegos{% endblock %}
+
+{% block extra_css %}
+<style>
+    .checkout-card {
+        background: #ffffff;
+        border-radius: var(--mj-radius);
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    .checkout-input-group .input-group-text {
+        background-color: #f9fafb;
+        border-color: #d1d5db;
+        color: #6b7280;
+    }
+
+    .checkout-input {
+        border-color: #d1d5db;
+        font-size: 0.95rem;
+        transition: var(--mj-transition);
+    }
+
+    .checkout-input:focus {
+        border-color: var(--mj-blue);
+        box-shadow: 0 0 0 3px rgba(45, 50, 119, 0.15);
+    }
+
+    .order-summary-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+    }
+
+    .total-highlight {
+        font-size: 1.85rem;
+        font-weight: 800;
+        color: var(--mj-green);
+        letter-spacing: -0.5px;
+    }
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="container my-4 my-md-5" style="max-width: 680px;">
+
+    <!-- Tarjeta Principal de Checkout -->
+    <div class="card checkout-card border-0">
+        <div class="card-body p-4 p-md-5">
+            
+            <!-- Encabezado -->
+            <div class="text-center mb-4">
+                <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex mb-3">
+                    <i class="fa-solid fa-shield-halved fa-2x"></i>
+                </div>
+                <h3 class="fw-bold mb-1 text-dark">Confirmación de Compra</h3>
+                <p class="text-muted small mb-0">Verificá tus datos de facturación para procesar tu orden digital</p>
+            </div>
+
+            <form method="POST" action="" novalidate>
+                {% csrf_token %}
+
+                <!-- 1. Datos de Facturación y Contacto -->
+                <div class="mb-3">
+                    <label for="id_direccion" class="form-label small fw-semibold text-secondary">Dirección / Domicilio</label>
+                    <div class="input-group checkout-input-group">
+                        <span class="input-group-text rounded-start-3"><i class="fa-solid fa-location-dot"></i></span>
+                        <input type="text" 
+                               name="direccion" 
+                               id="id_direccion" 
+                               value="{{ perfil.direccion|default:'' }}" 
+                               class="form-control checkout-input rounded-end-3" 
+                               placeholder="Ej. Av. Siempreviva 742" 
+                               required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="id_ciudad" class="form-label small fw-semibold text-secondary">Ciudad / Localidad</label>
+                    <div class="input-group checkout-input-group">
+                        <span class="input-group-text rounded-start-3"><i class="fa-solid fa-city"></i></span>
+                        <input type="text" 
+                               name="ciudad" 
+                               id="id_ciudad" 
+                               value="{{ perfil.ciudad|default:'' }}" 
+                               class="form-control checkout-input rounded-end-3" 
+                               placeholder="Ej. San Miguel de Tucumán" 
+                               required>
+                    </div>
+                </div>
+
+                <!-- 2. Resumen de la Orden -->
+                <div class="order-summary-box p-3 p-md-4 mb-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                        <span class="fw-bold text-dark small text-uppercase" style="letter-spacing: 0.5px;">
+                            <i class="fa-solid fa-receipt me-1 text-primary"></i>Resumen de la orden
+                        </span>
+                        <span class="badge bg-success bg-opacity-10 text-success fw-bold small">
+                            <i class="fa-solid fa-bolt me-1"></i>Entrega Inmediata
+                        </span>
+                    </div>
+                    
+                    {% if carrito %}
+                        <ul class="list-unstyled mb-3 small">
+                            {% for item in carrito %}
+                            <li class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom border-light">
+                                <span class="text-truncate text-dark" style="max-width: 320px;">
+                                    <strong>{{ item.cantidad }}x</strong> {{ item.producto.titulo }}
+                                </span>
+                                <span class="fw-bold text-dark">${{ item.subtotal }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between align-items-baseline pt-2">
+                        <span class="fw-bold text-dark fs-5">Total a Pagar:</span>
+                        <div class="text-end">
+                            <span class="total-highlight">${{ total|default:carrito.get_total }}</span>
+                            <small class="text-muted d-block" style="font-size: 0.75rem;">Impuestos incluidos (ARS)</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Botón de Confirmación y Pago -->
+                <button type="submit" class="btn btn-mj-primary w-100 py-3 fs-5 fw-bold shadow-sm mb-3 d-flex align-items-center justify-content-center gap-2">
+                    <i class="fa-solid fa-lock"></i>
+                    <span>Confirmar y Pagar con Mercado Pago</span>
+                </button>
+
+                <div class="text-center">
+                    <a href="{% url 'ventas:carrito' %}" class="small text-secondary text-decoration-none fw-semibold">
+                        <i class="fa-solid fa-arrow-left me-1"></i> Volver a editar el carrito
+                    </a>
+                </div>
+            </form>
+
+            <hr class="my-4 text-muted opacity-25">
+
+            <!-- Sellos de Seguridad -->
+            <div class="d-flex justify-content-center align-items-center flex-wrap gap-4 text-muted small">
+                <span><i class="fa-solid fa-shield-halved text-success me-1"></i> Transacción Cifrada TLS</span>
+                <span><i class="fa-solid fa-key text-primary me-1"></i> Licencia 100% Original</span>
+                <span><i class="fa-solid fa-bolt text-warning me-1"></i> Activación Directa</span>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

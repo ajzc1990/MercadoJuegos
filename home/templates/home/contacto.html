@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Contacto y Centro de Ayuda - Mercado Juegos{% endblock %}
+
+{% block extra_css %}
+<style>
+    .contact-card {
+        background: #ffffff;
+        border-radius: var(--mj-radius);
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-floating-custom .input-group-text {
+        border-color: #d1d5db;
+        background-color: #f9fafb;
+        color: #6b7280;
+    }
+
+    .form-control-custom, .form-select-custom {
+        border-color: #d1d5db;
+        border-radius: 0 8px 8px 0 !important;
+        font-size: 0.95rem;
+        transition: var(--mj-transition);
+    }
+
+    .form-control-custom:focus, .form-select-custom:focus {
+        border-color: var(--mj-blue);
+        box-shadow: 0 0 0 3px rgba(45, 50, 119, 0.15);
+    }
+
+    .contact-badge-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 12px;
+        transition: var(--mj-transition);
+    }
+
+    .contact-badge-box:hover {
+        background: #f1f5f9;
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="container my-4 my-md-5" style="max-width: 680px;">
+
+    <!-- Tarjeta Principal de Soporte -->
+    <div class="contact-card p-4 p-md-5">
+        
+        <!-- Encabezado -->
+        <div class="text-center mb-4">
+            <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex mb-3">
+                <i class="fa-solid fa-headset fa-2x"></i>
+            </div>
+            <h3 class="fw-bold mb-1 text-dark">Centro de Contacto y Soporte</h3>
+            <p class="text-muted small mx-auto mb-0" style="max-width: 480px;">
+                ¿Tenés alguna duda sobre tu compra, activación de claves o medios de pago? Envianos tu mensaje y te responderemos por correo.
+            </p>
+        </div>
+
+        <!-- Formulario -->
+        <form method="POST" action="">
+            {% csrf_token %}
+            
+            <!-- Nombre Completo -->
+            <div class="mb-3">
+                <label for="id_nombre" class="form-label small fw-semibold text-secondary">Nombre Completo</label>
+                <div class="input-group form-floating-custom">
+                    <span class="input-group-text rounded-start-3"><i class="fa-solid fa-user"></i></span>
+                    <input type="text" 
+                           name="nombre" 
+                           id="id_nombre" 
+                           class="form-control form-control-custom" 
+                           value="{% if user.is_authenticated %}{{ user.get_full_name|default:user.username }}{% endif %}" 
+                           placeholder="Ej. María González" 
+                           required>
+                </div>
+            </div>
+
+            <!-- Correo Electrónico -->
+            <div class="mb-3">
+                <label for="id_email" class="form-label small fw-semibold text-secondary">Correo Electrónico de Contacto</label>
+                <div class="input-group form-floating-custom">
+                    <span class="input-group-text rounded-start-3"><i class="fa-solid fa-envelope"></i></span>
+                    <input type="email" 
+                           name="email" 
+                           id="id_email" 
+                           class="form-control form-control-custom" 
+                           value="{% if user.is_authenticated %}{{ user.email }}{% endif %}" 
+                           placeholder="tu@email.com" 
+                           required>
+                </div>
+            </div>
+
+            <!-- Asunto / Motivo -->
+            <div class="mb-3">
+                <label for="id_asunto" class="form-label small fw-semibold text-secondary">Motivo de Consulta</label>
+                <div class="input-group form-floating-custom">
+                    <span class="input-group-text rounded-start-3"><i class="fa-solid fa-tag"></i></span>
+                    <select name="asunto" id="id_asunto" class="form-select form-select-custom">
+                        <option value="compra" selected>Soporte sobre una Compra / Clave Digital</option>
+                        <option value="consulta">Consulta General sobre el Catálogo</option>
+                        <option value="publicacion">Consulta sobre Publicaciones</option>
+                        <option value="otro">Otro motivo</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Mensaje -->
+            <div class="mb-4">
+                <label for="id_mensaje" class="form-label small fw-semibold text-secondary">Mensaje o Detalle de la Orden</label>
+                <textarea name="mensaje" 
+                          id="id_mensaje" 
+                          class="form-control rounded-3" 
+                          rows="5" 
+                          placeholder="Escribí aquí los detalles de tu consulta o número de pedido si aplica..." 
+                          required 
+                          style="resize: none;"></textarea>
+            </div>
+
+            <!-- Botón de Envío -->
+            <button type="submit" class="btn btn-mj-primary w-100 py-2 fs-6 shadow-sm d-flex align-items-center justify-content-center gap-2">
+                <i class="fa-solid fa-paper-plane"></i>
+                <span>Enviar Consulta</span>
+            </button>
+        </form>
+
+        <hr class="my-4 text-muted">
+
+        <!-- Canales y Garantías -->
+        <div class="row text-center g-3">
+            <div class="col-6">
+                <div class="contact-badge-box">
+                    <i class="fa-solid fa-bolt text-warning me-1"></i>
+                    <span class="small fw-semibold text-dark d-block d-sm-inline">Entrega 24/7</span>
+                    <small class="text-muted d-none d-sm-inline">Automatizada</small>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="contact-badge-box">
+                    <i class="fa-solid fa-shield-halved text-success me-1"></i>
+                    <span class="small fw-semibold text-dark d-block d-sm-inline">Atención Segura</span>
+                    <small class="text-muted d-none d-sm-inline">Garantizada</small>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

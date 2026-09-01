@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+
+{% block titulo %}{{ producto.titulo }} - Mercado Juegos{% endblock %}
+
+{% block extra_css %}
+<style>
+    .product-detail-card, .qa-card {
+        background: #ffffff;
+        border-radius: var(--mj-radius);
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Contenedor de la Imagen */
+    .product-hero-image-wrapper {
+        background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+        border-radius: var(--mj-radius);
+        overflow: hidden;
+        min-height: 380px;
+        position: relative;
+    }
+
+    .product-hero-img {
+        max-height: 420px;
+        width: 100%;
+        object-fit: contain;
+        transition: transform 0.3s ease;
+    }
+
+    .product-hero-image-wrapper:hover .product-hero-img {
+        transform: scale(1.02);
+    }
+
+    .detail-price {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--mj-green);
+        letter-spacing: -0.5px;
+    }
+
+    /* Caja de Garantías */
+    .guarantee-badge-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 14px;
+    }
+
+    /* Hilo de Preguntas y Respuestas */
+    .qa-thread-item {
+        transition: var(--mj-transition);
+    }
+
+    .seller-reply-box {
+        background-color: #f1f5f9;
+        border-left: 4px solid var(--mj-blue);
+        border-radius: 0 8px 8px 0;
+        padding: 12px 16px;
+    }
+
+    .qa-input:focus {
+        border-color: var(--mj-blue);
+        box-shadow: 0 0 0 3px rgba(45, 50, 119, 0.15);
+    }
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="container my-3 my-md-4">
+
+    <!-- Breadcrumb de Navegación -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a href="{% url 'home:inicio' %}" class="text-decoration-none text-muted">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'home:inicio' %}?categoria={{ producto.categoria.slug }}" class="text-decoration-none text-muted">{{ producto.categoria.nombre }}</a></li>
+            <li class="breadcrumb-item active text-dark fw-semibold text-truncate" style="max-width: 300px;" aria-current="page">{{ producto.titulo }}</li>
+        </ol>
+    </nav>
+
+    <!-- Card de Producto Principal -->
+    <div class="card product-detail-card border-0 mb-4 overflow-hidden">
+        <div class="card-body p-4 p-md-5">
+            <div class="row g-4 g-lg-5">
+                
+                <!-- 1. Imagen / Portada del Producto -->
+                <div class="col-12 col-md-7">
+                    <div class="product-hero-image-wrapper d-flex align-items-center justify-content-center p-3">
+                        {% if producto.imagen %}
+                            <img src="{{ producto.imagen.url }}" class="img-fluid product-hero-img" alt="{{ producto.titulo }}">
+                        {% else %}
+                            <div class="py-5 text-center text-muted">
+                                <i class="fa-solid fa-gamepad fa-5x mb-3 text-secondary opacity-50"></i>
+                                <p class="mb-0 fw-semibold text-light text-opacity-75">Sin imagen de portada</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- 2. Detalles de Compra y Vendedor -->
+                <div class="col-12 col-md-5 d-flex flex-column justify-content-between">
+                    <div>
+                        <!-- Badges de Condición y Categoría -->
+                        <div class="mb-2 d-flex gap-2 align-items-center">
+                            <span class="badge bg-secondary bg-opacity-10 text-secondary border fw-semibold">{{ producto.get_condicion_display|title }}</span>
+                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 fw-semibold">{{ producto.categoria.nombre }}</span>
+                        </div>
+
+                        <!-- Título -->
+                        <h2 class="fw-bold text-dark mb-2">{{ producto.titulo }}</h2>
+                        
+                        <!-- Vendedor y Reputación -->
+                        <div class="mb-3 d-flex align-items-center gap-2">
+                            <span class="text-muted small">Vendido por:</span>
+                            <strong class="text-primary small d-flex align-items-center gap-1">
+                                <i class="fa-solid fa-circle-check text-success"></i>
+                                <span>{{ producto.vendedor.username }}</span>
+                            </strong>
+                        </div>
+
+                        <!-- Precio -->
+                        <div class="my-3 py-2 border-top border-bottom">
+                            <div class="d-flex align-items-baseline gap-2">
+                                <span class="detail-price">${{ producto.precio }}</span>
+                                <span class="badge bg-success bg-opacity-10 text-success fw-bold">ARS</span>
+                            </div>
+                            <small class="text-muted d-block mt-1">
+                                <i class="fa-solid fa-shield-check text-success me-1"></i>Precio final con impuestos incluidos
+                            </small>
+                        </div>
+
+                        <!-- Caja de Estado de Stock y Entrega -->
+                        <div class="guarantee-badge-box mb-4">
+                            {% if producto.stock > 0 %}
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="text-dark small fw-semibold">
+                                        <i class="fa-solid fa-boxes-stacked text-primary me-2"></i>Stock disponible:
+                                    </span>
+                                    <span class="badge bg-dark px-2 py-1">{{ producto.stock }} unidad{{ producto.stock|pluralize:"es" }}</span>
+                                </div>
+                                <div class="text-success small fw-semibold d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-bolt fs-5"></i>
+                                    <span>Entrega Digital Inmediata en pantalla y por email</span>
+                                </div>
+                            {% else %}
+                                <div class="text-danger small fw-bold d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-ban fs-5"></i>
+                                    <span>Sin stock disponible por el momento</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción / Compra -->
+                    <div>
+                        {% if request.user != producto.vendedor %}
+                            {% if producto.stock > 0 %}
+                                <form method="POST" action="{% url 'ventas:agregar' producto.id %}">
+                                    {% csrf_token %}
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" name="accion" value="comprar" class="btn btn-mj-primary btn-lg fw-bold py-3 shadow-sm d-flex align-items-center justify-content-center gap-2">
+                                            <i class="fa-solid fa-bag-shopping"></i>
+                                            <span>Comprar Ahora</span>
+                                        </button>
+                                        <button type="submit" name="accion" value="agregar" class="btn btn-mj-outline btn-lg fw-semibold py-2.5 d-flex align-items-center justify-content-center gap-2">
+                                            <i class="fa-solid fa-cart-plus"></i>
+                                            <span>Agregar al Carrito</span>
+                                        </button>
+                                    </div>
+                                </form>
+                            {% else %}
+                                <button class="btn btn-secondary btn-lg w-100 fw-bold py-3 disabled" disabled>
+                                    <i class="fa-solid fa-ban me-2"></i>Producto Agotado
+                                </button>
+                            {% endif %}
+                        {% else %}
+                            <div class="alert alert-info border-0 shadow-sm d-flex align-items-center gap-2 mb-0" role="alert">
+                                <i class="fa-solid fa-circle-info fs-5 flex-shrink-0"></i>
+                                <span class="small">Esta es tu propia publicación. Podés auditar las claves en tu panel de control.</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- 3. Descripción Completa del Juego -->
+            <div class="mt-5 pt-4 border-top">
+                <h4 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-align-left text-primary"></i>
+                    <span>Descripción del Videojuego</span>
+                </h4>
+                <div class="text-secondary lh-lg p-3 bg-light rounded-3 border" style="white-space: pre-line; font-size: 0.95rem;">
+                    {{ producto.descripcion|default:"El vendedor no especificó una descripción adicional para este producto." }}
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 4. Sección de Preguntas y Respuestas -->
+    <div class="card qa-card border-0">
+        <div class="card-body p-4 p-md-5">
+            
+            <h4 class="fw-bold mb-4 text-dark d-flex align-items-center gap-2">
+                <i class="fa-solid fa-comments text-primary"></i>
+                <span>Preguntas y Respuestas</span>
+            </h4>
+
+            <!-- Formulario para Compradores -->
+            {% if request.user != producto.vendedor %}
+                {% if request.user.is_authenticated %}
+                    <form method="POST" action="" class="mb-4">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="{{ form_pregunta.texto_pregunta.id_for_label }}" class="form-label small fw-semibold text-secondary">
+                                Escribile una consulta al vendedor
+                            </label>
+                            <textarea name="{{ form_pregunta.texto_pregunta.name }}" 
+                                      id="{{ form_pregunta.texto_pregunta.id_for_label }}" 
+                                      rows="3" 
+                                      class="form-control qa-input rounded-3" 
+                                      placeholder="Consultá sobre idiomas, plataforma de activación (Steam/Epic), o compatibilidad..." 
+                                      required></textarea>
+                        </div>
+                        <button type="submit" name="btn_pregunta" class="btn btn-mj-primary px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>Preguntar</span>
+                        </button>
+                    </form>
+                {% else %}
+                    <div class="alert alert-light border rounded-3 text-center py-3 mb-4">
+                        <p class="mb-2 text-muted small">Iniciá sesión para hacerle una pregunta al vendedor sobre este título.</p>
+                        <a href="{% url 'cuentas:login' %}?next={{ request.path }}" class="btn btn-sm btn-mj-outline px-3 fw-semibold">
+                            Iniciar Sesión
+                        </a>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            <!-- Listado de Preguntas -->
+            <div class="mt-4">
+                <h6 class="fw-bold text-muted text-uppercase mb-3 small" style="letter-spacing: 0.5px;">Últimas consultas</h6>
+                
+                {% for pregunta in preguntas %}
+                    <div class="qa-thread-item mb-3 pb-3 border-bottom">
+                        
+                        <!-- Pregunta del Usuario -->
+                        <div class="d-flex align-items-start gap-2 mb-2">
+                            <i class="fa-regular fa-comment-dots text-primary mt-1"></i>
+                            <div>
+                                <p class="mb-0 fw-semibold text-dark">{{ pregunta.texto_pregunta }}</p>
+                                <small class="text-muted">{{ pregunta.usuario.username }} • {{ pregunta.creado_el|date:"d/m/Y H:i" }}</small>
+                            </div>
+                        </div>
+
+                        <!-- Respuesta del Vendedor -->
+                        {% if pregunta.texto_respuesta %}
+                            <div class="seller-reply-box ms-4 mt-2">
+                                <div class="d-flex align-items-start gap-2">
+                                    <i class="fa-solid fa-reply fa-rotate-180 text-primary mt-1"></i>
+                                    <div>
+                                        <p class="mb-0 text-dark fw-medium">{{ pregunta.texto_respuesta }}</p>
+                                        <small class="text-muted d-block mt-1">{{ pregunta.respondido_el|date:"d/m/Y H:i" }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        {% elif request.user == producto.vendedor %}
+                            <!-- Formulario de Respuesta para el Vendedor -->
+                            <form method="POST" action="{% url 'publicaciones:responder' pregunta.id %}" class="ms-4 mt-2">
+                                {% csrf_token %}
+                                <div class="input-group">
+                                    <input type="text" name="texto_respuesta" class="form-control form-control-sm qa-input rounded-start-3" placeholder="Escribí tu respuesta..." required>
+                                    <button class="btn btn-sm btn-mj-primary rounded-end-3 px-3" type="submit">Responder</button>
+                                </div>
+                            </form>
+                        {% endif %}
+
+                    </div>
+                {% empty %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="fa-solid fa-comments fa-2x mb-2 opacity-50"></i>
+                        <p class="mb-0 small">Nadie hizo preguntas todavía. ¡Sé el primero en consultar!</p>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}
